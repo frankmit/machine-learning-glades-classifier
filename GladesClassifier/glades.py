@@ -16,7 +16,7 @@ def fork_tree(data, subspace_list, target_var, target_value, slices, minimum_sli
         for slice_counter in xrange(slices):
             
             spread = data[subspace].max() - data[subspace].min()
-            slice_value = spread/slices * slice_counter + data[subspace].min()
+            slice_value = float(spread)/float(slices) * slice_counter + data[subspace].min()
             
             points_below = data[data[subspace] < slice_value]
             points_above = data[data[subspace] >= slice_value]
@@ -33,8 +33,8 @@ def fork_tree(data, subspace_list, target_var, target_value, slices, minimum_sli
             if below_total_count <= minimum_slice_points or above_total_count <= minimum_slice_points:
                 continue    # not enough points, skip to the next iteration
             
-            below_target_prob = below_target_count/below_total_count
-            above_target_prob = above_target_count/above_total_count
+            below_target_prob = float(below_target_count)/float(below_total_count)
+            above_target_prob = float(above_target_count)/float(above_total_count)
         
             if below_target_prob > above_target_prob:
                 below_class_assignment = "target"
@@ -74,7 +74,7 @@ def fork_tree(data, subspace_list, target_var, target_value, slices, minimum_sli
         target_count = data[data[target_var] == target_value].shape[0]
         nontarget_count = data[data[target_var] != target_value].shape[0]          
         total_count = target_count + nontarget_count
-        target_prob = target_count/total_count
+        target_prob = float(target_count)/float(total_count)
         return target_prob   # return overall probability for this division
     
     ##### MINIMIZE MISCLASSIFICATION ERROR
@@ -206,10 +206,10 @@ def score_aggregation(df, forest):
         for tree_counter in xrange(tree_count):       
             target_score_sum += follow_tree(forest[tree_counter], df, datapoint_i)
             
-        df_scored.target_score[datapoint_i] = target_score_sum/tree_count
+        df_scored.target_score[datapoint_i] = float(target_score_sum)/float(tree_count)
         
         if datapoint_counter % 200 == 0:
-            print "% complete:", np.round(datapoint_counter/total_datapoints * 100, 1)
+            print "% complete:", np.round(float(datapoint_counter)/float(total_datapoints) * 100, 1)
         
         datapoint_counter += 1
     
@@ -230,7 +230,7 @@ def score_aggregation(df, forest):
 def create_probability_map(df, target_var, target_value, ntiles=250):
 
     total_points = df.shape[0]
-    count_per_ntile = total_points/ntiles
+    count_per_ntile = float(total_points)/float(ntiles)
     
     df_ntile = pd.DataFrame(range(ntiles), columns=["ntile"])
     
@@ -249,7 +249,7 @@ def create_probability_map(df, target_var, target_value, ntiles=250):
         
         df_ntile.score_min[ntile_number] = df_subset["target_score"].min()
         df_ntile.score_max[ntile_number] = df_subset["target_score"].max()
-        df_ntile.target_probability[ntile_number] = np.where(df_subset[target_var] == target_value, 1, 0).sum() / count_per_ntile
+        df_ntile.target_probability[ntile_number] = np.where(df_subset[target_var] == target_value, 1, 0).sum() / float(count_per_ntile)
     
     # if target_score is higher, use that as the probability to smooth ripples; this is ok because target_score is meant to be a probability anyway (but can be underestimated if trees are not deep enough)
     probability_adjust_records = df_ntile.score_max > df_ntile.target_probability
