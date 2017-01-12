@@ -360,7 +360,7 @@ The following is a small-scale demo of the functionality provided by glades, usi
     # predicts whether iris species is versicolor,
     # based on sepal and petal measurements
     rf.grow_forest(
-    df=iris_data,
+        df=iris_data,
         feature_space=['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
         target_var='species',
         target_value='versicolor',
